@@ -9,14 +9,15 @@
 #define LED_PIN_2 3
 #define NUM_STRIPS 2
 #define NUM_LEDS_PER_STRIP 94
-#define DIM_TRIGGER 1
-#define BRIGHT_TRIGGER 2
+#define DIM_TRIGGER 49 //ascii "1"
+#define BRIGHT_TRIGGER 50 //ascii "2"
 #define OPTICAL_TRIGGER 0
 
 unsigned long currentTime = millis();
 unsigned long previousTime = millis();
 int previousState = HIGH, currentState = HIGH;
 int randNum;
+int incomingByte;
 
 CRGB leds[NUM_STRIPS][NUM_LEDS_PER_STRIP];
 
@@ -33,8 +34,8 @@ void setup() {
 void loop() {
   //HIGH when optical sensors are align & LOW when broken
   currentState = digitalRead(OPTICAL_PIN);
-  if(digitalRead(OPTICAL_PIN) == HIGH && previousState == LOW){
-    Serial.print(OPTICAL_TRIGGER);
+  if(currentState == HIGH && previousState == LOW){
+    Serial.println(OPTICAL_TRIGGER);
     processing();
   }
   brightness();
@@ -44,10 +45,13 @@ void loop() {
 }
 
 void brightness(){
-  if(Serial.read() == DIM_TRIGGER){
-    FastLED.setBrightness(0);
-  } else if (Serial.read() == BRIGHT_TRIGGER){
-    FastLED.setBrightness(255);
+  if(Serial.available() > 0){
+    incomingByte = Serial.read();
+    if(incomingByte == DIM_TRIGGER){
+      FastLED.setBrightness(0);
+    } else if (incomingByte == BRIGHT_TRIGGER){
+      FastLED.setBrightness(255);
+    }
   }
   Serial.flush();
   //clear serial buffer for new messages
