@@ -1,7 +1,7 @@
 #include <FastLED.h>
 
 #define SERIAL_SPEED 9600
-#define MODEL_INTERVAL 0
+#define TIME_INTERVAL 0
 #define LOCAL_INTERVAL 2400
 #define FLASH_INTERVAL 300
 #define OPTICAL_PIN 4
@@ -9,12 +9,13 @@
 #define LED_PIN_2 3
 #define NUM_STRIPS 2
 #define NUM_LEDS_PER_STRIP 94
-#define DIM_TRIGGER "1"
-#define BRIGHT_TRIGGER "2"
+#define DIM_TRIGGER 1
+#define BRIGHT_TRIGGER 2
+#define OPTICAL_TRIGGER 0
 
-bool walkThrough = false;
 unsigned long currentTime = millis();
 unsigned long previousTime = millis();
+int previousState = HIGH, currentState = HIGH;
 int randNum;
 
 CRGB leds[NUM_STRIPS][NUM_LEDS_PER_STRIP];
@@ -30,20 +31,26 @@ void setup() {
 } 
 
 void loop() {
-  if(digitalRead(OPTICAL_PIN) && !walkThrough){
-    walkThrough = true;
-    Serial.write(walkThrough);
+  //HIGH when optical sensors are align & LOW when broken
+  currentState = digitalRead(OPTICAL_PIN);
+  if(digitalRead(OPTICAL_PIN) == HIGH && previousState == LOW){
+    Serial.print(OPTICAL_TRIGGER);
     processing();
-    Serial.write(walkThrough);
   }
+  brightness();
+  idle(); //default green animation
 
+  previousState = currentState;
+}
+
+void brightness(){
   if(Serial.read() == DIM_TRIGGER){
     FastLED.setBrightness(0);
   } else if (Serial.read() == BRIGHT_TRIGGER){
     FastLED.setBrightness(255);
   }
-
-  idle(); //default green animation
+  Serial.flush();
+  //clear serial buffer for new messages
 }
 
 void idle(){
@@ -69,14 +76,13 @@ void localization(){
     }
     delay(FLASH_INTERVAL);
     currentTime = millis();
-  }
-  walkThrough = false; //done one walkthrough!
+  }//done one walkthrough!
 }
 
 void processing(){
   currentTime = previousTime = millis(); 
-  //waits 1500ms to "run the model"
-  while((currentTime - previousTime) < MODEL_INTERVAL){
+  //waits time to "run the model"
+  while((currentTime - previousTime) < TIME_INTERVAL){
     for(int x = 0; x < NUM_STRIPS; x++) {
       fill_solid(leds[x], NUM_LEDS_PER_STRIP, CRGB::Yellow);
       FastLED.show();
