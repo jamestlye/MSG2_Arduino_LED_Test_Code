@@ -1,7 +1,7 @@
 #include <FastLED.h>
 
 #define SERIAL_SPEED 9600
-#define TIME_INTERVAL 0
+#define MODEL_INTERVAL 0
 #define LOCAL_INTERVAL 2400
 #define FLASH_INTERVAL 300
 #define OPTICAL_PIN 4
@@ -76,7 +76,7 @@ void localization(){
 void processing(){
   currentTime = previousTime = millis(); 
   //waits 1500ms to "run the model"
-  while((currentTime - previousTime) < TIME_INTERVAL){
+  while((currentTime - previousTime) < MODEL_INTERVAL){
     for(int x = 0; x < NUM_STRIPS; x++) {
       fill_solid(leds[x], NUM_LEDS_PER_STRIP, CRGB::Yellow);
       FastLED.show();
