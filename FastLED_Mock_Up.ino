@@ -8,7 +8,7 @@
 #define LED_PIN_1 2
 #define LED_PIN_2 3
 #define NUM_STRIPS 2
-#define NUM_LEDS_PER_STRIP 94
+#define NUM_LEDS_PER_STRIP 107
 #define DIM_TRIGGER 49 //ascii "1"
 #define BRIGHT_TRIGGER 50 //ascii "2"
 #define OPTICAL_TRIGGER 0
