@@ -36,7 +36,7 @@ void loop() {
   currentState = digitalRead(OPTICAL_PIN);
   if(currentState == HIGH && previousState == LOW){
     Serial.println(OPTICAL_TRIGGER);
-    processing();
+    processing(); // LED animation will take around TIME_INTERVAL + LOCAL_INTERVAL amount of time
   }
   brightness();
   idle(); //default green animation
